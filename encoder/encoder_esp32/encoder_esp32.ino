@@ -1,35 +1,36 @@
- #define A 21
- #define B 19
+ #define right_enc_A 21
+ #define right_enc_B 19
  
- int counter = 0; 
- int aState;
- int aLastState;  
+ int right_counter = 0; 
+ int right_aState;
+ int right_aLastState;  
 
  void setup() { 
-   pinMode (A,INPUT);
-   pinMode (B,INPUT);
+   pinMode (right_enc_A,INPUT);
+   pinMode (right_enc_B,INPUT);
    
    Serial.begin (9600);
    // Reads the initial state of the outputA
-   aLastState = digitalRead(A);   
-   attachInterrupt(digitalPinToInterrupt(A), update, CHANGE);
+   right_aLastState = digitalRead(right_enc_A);   
+   attachInterrupt(digitalPinToInterrupt(right_enc_A), right_update, CHANGE);
  } 
 
  void loop() { 
-     Serial.print("Position: ");
-     Serial.println(counter);
+     Serial.print("Position RIGHT: ");
+     Serial.println(right_counter);
      delay(100);
  }
- void update() {
-    aState = digitalRead(A); // Reads the "current" state of the outputA
+ 
+ void right_update() {
+    right_aState = digitalRead(right_enc_A); // Reads the "current" state of the outputA
    // If the previous and the current state of the outputA are different, that means a Pulse has occured
-   if (aState != aLastState){     
+   if (right_aState != right_aLastState){     
      // If the outputB state is different to the outputA state, that means the encoder is rotating clockwise
-     if (digitalRead(B) != aState) { 
-       counter ++;
+     if (digitalRead(right_enc_B) != right_aState) { 
+       right_counter ++;
      } else {
-       counter --;
+       right_counter --;
      }
    } 
-   aLastState = aState;
+   right_aLastState = right_aState;
  }
