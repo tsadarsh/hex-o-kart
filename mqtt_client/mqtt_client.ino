@@ -2,8 +2,8 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-const char *SSID = "Harshzzz Net";
-const char *PWD = "Harsh1234";
+const char *SSID = "oneplus_tsa";
+const char *PWD = "password0707";
 
 // MQTT client
 WiFiClient wifiClient;
