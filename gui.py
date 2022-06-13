@@ -8,27 +8,30 @@ class Gui:
 		self.STOP    = '00'
 		self.REVERSE = '01'
 		self.STATUS = '00'
+		self.READY = False
 
-	def start(self):
+	def create_window(self):
 		layout = [
 			[
 				sg.Button(self.FORWARD),
 				sg.Button(self.STOP),
 				sg.Button(self.REVERSE),
-				sg.Button('Cancel')
 			]
 		]
 
 		window = sg.Window('GUI', layout)
+		self.READY = True
 
-		while True:
-			event, values = window.read()
-			if event == sg.WIN_CLOSED or event == 'Cancel':
-				self.kill(window)
-				break
-			else:
-				self.STATUS = event
-				print(self.STATUS)
+		return window
+
+	def event_loop(self, window):
+		event, values = window.read()
+		if event == sg.WIN_CLOSED or event == 'Cancel':
+			self.kill(window)
+			self.STATUS = self.STOP
+			self.READY = False
+		else:
+			self.STATUS = event
 
 	def kill(self, window):
 		window.close()
