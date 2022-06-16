@@ -19,3 +19,5 @@ while gui.READY:
 	gui.event_loop(window)
 	message = gui.MESSAGE
 	c.publish(message)
+	gui.left_encoder = c.left_encoder
+	gui.right_encoder = c.right_encoder

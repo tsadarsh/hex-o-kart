@@ -44,8 +44,8 @@ class Controller:
 		"""Callback function of `client.subscribe`"""
 		if message.topic == "/swa/encoder/left":
 			self.left_encoder = str(message.payload.decode("utf-8"))
-			print(self.left_encoder)
+			
 		if message.topic == "/swa/encoder/right":
 			self.right_encoder = str(message.payload.decode("utf-8"))
-			print(self.right_encoder)
+			
 
