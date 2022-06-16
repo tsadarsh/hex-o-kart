@@ -29,6 +29,12 @@ class Gui:
 		return self.window
 
 	def event_loop(self, window):
+		"""Reads any button presses (non-blocking), kills the window if 
+		closed, updates message if event is not __TIMEOUT__ and 
+		refershes encoder values. __TIMOUT__ occurs when there on event
+		happened in the specified timeout (10ms) interval.
+		"""
+
 		event, values = window.read(timeout = 10)
 		if event == sg.WIN_CLOSED or event == 'Cancel':
 			self.kill(window)
