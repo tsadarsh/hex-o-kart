@@ -18,7 +18,7 @@ int left_aLastState;
 int left_counter_last = 0;
 long now = 0;
 long last_time = 0;
-long msg_time_interval = 1; // set time between each msg publish
+long msg_time_interval = 100; // set time between each msg publish
 const char *SSID = "oneplus_tsa";
 const char *PWD = "password0707";
 const char *FWD = "10";
@@ -54,15 +54,12 @@ void loop() {
   mqttClient.loop();
   long now = millis();
   if (now - last_time > msg_time_interval) {
-    byte left_enc_byte[2];
-    byte right_enc_byte[2];
-    left_enc_byte[0] = (left_counter >> 8) & 0xFF;
-    left_enc_byte[1] = left_counter & 0xFF;
-    right_enc_byte[0] = (right_counter >> 8) & 0xFF;
-    right_enc_byte[1] = right_counter & 0xFF; 
-    mqttClient.publish("/swa/encoder/left", left_enc_byte, 2);
-    mqttClient.publish("/swa/encoder/right", right_enc_byte, 2);
-    
+    char left_e[8];
+    char right_e[8];
+    itoa(left_counter, left_e, 10);
+    itoa(right_counter, right_e, 10);
+      mqttClient.publish("/swa/encoder/left", left_e);
+      mqttClient.publish("/swa/encoder/right", right_e);
     last_time = now;
   }
 }
