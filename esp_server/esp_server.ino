@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
-#define IN1 12
-#define IN2 13
+#define IN1 25
+#define IN2 26
 #define right_enc_A 21
 #define right_enc_B 19
 #define left_enc_A 34
@@ -19,8 +19,8 @@ int left_counter_last = 0;
 long now = 0;
 long last_time = 0;
 long msg_time_interval = 100; // set time between each msg publish
-const char *SSID = "oneplus_tsa";
-const char *PWD = "password0707";
+const char *SSID = "RUDRA_2.4G";
+const char *PWD = "hackitifucan";
 const char *FWD = "10";
 const char *BWD = "01";
 

@@ -3,7 +3,7 @@ from random import randint
 import time
 
 
-class Controller:
+class Client:
 	"""Class to publish message to MQTT broker
 
 	First connect to server by calling `connect` method. Then publish

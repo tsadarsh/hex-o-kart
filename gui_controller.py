@@ -1,11 +1,11 @@
-from controller import Controller
+from mqtt_client import Client
 
 from gui import Gui
 
 gui = Gui()
 window = gui.create_window()
 
-c = Controller()
+c = Client()
 c.connect()
 
 
