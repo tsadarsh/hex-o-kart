@@ -1,6 +1,6 @@
 from mqtt_client import Client
 
-from gui import Gui
+from requirements.gui import Gui
 
 gui = Gui()
 window = gui.create_window()

@@ -1,9 +1,9 @@
 import xbox
-from controller import Controller
+from requirements.mqtt_client import Client
 import time
 
 joy = xbox.Joystick()         #Initialize joystick
-c = Controller()
+c = Client()
 c.connect()
 l = time.time()
 
