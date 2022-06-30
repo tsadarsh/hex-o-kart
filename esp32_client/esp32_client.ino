@@ -1,12 +1,14 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
-#define IN1 25
-#define IN2 26
-#define right_enc_A 21
-#define right_enc_B 19
-#define left_enc_A 34
-#define left_enc_B 35
+#define motA1 25
+#define motA2 26
+#define motB1 12
+#define motB2 13
+#define ENC_R1 21
+#define ENC_R2 19
+#define ENC_L1 34
+#define ENC_L2 35
 
 int right_counter = 0; 
 int right_aState;
@@ -32,20 +34,29 @@ int mqttPort = 1883;
 
 void setup() {
   Serial.begin(9600);
+
   connectToWiFi();
   setupMQTT();
-  pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
-  pinMode (right_enc_A,INPUT);
-  pinMode (right_enc_B,INPUT);
-  pinMode (left_enc_A,INPUT);
-  pinMode (left_enc_B,INPUT);
-  right_aLastState = digitalRead(right_enc_A);
-  left_aLastState = digitalRead(left_enc_A);   
-  attachInterrupt(digitalPinToInterrupt(right_enc_A), right_update, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(left_enc_A), left_update, CHANGE);
+
+  pinMode(motA1, OUTPUT);
+  pinMode(motA2, OUTPUT);
+  pinMode(motB1, OUTPUT);
+  pinMode(motB2, OUTPUT);
+
+  digitalWrite(motA1, LOW);
+  digitalWrite(motA2, LOW);
+  digitalWrite(motB1, LOW);
+  digitalWrite(motB2, LOW);
+
+  pinMode (ENC_R1,INPUT);
+  pinMode (ENC_R2,INPUT);
+  pinMode (ENC_L1,INPUT);
+  pinMode (ENC_L2,INPUT);
+  
+  right_aLastState = digitalRead(ENC_R1);
+  left_aLastState = digitalRead(ENC_L1);   
+  attachInterrupt(digitalPinToInterrupt(ENC_R1), right_update, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(ENC_L1), left_update, CHANGE);
 }
 
 void loop() {
@@ -65,11 +76,11 @@ void loop() {
 }
 
  void right_update() {
-    right_aState = digitalRead(right_enc_A); // Reads the "current" state of the A
+    right_aState = digitalRead(ENC_R1); // Reads the "current" state of the A
    // If the previous and the current state of the A are different, that means a Pulse has occured
    if (right_aState != right_aLastState){     
      // If the outputB state is different to the A state, that means the encoder is rotating clockwise
-     if (digitalRead(right_enc_B) != right_aState) { 
+     if (digitalRead(ENC_R2) != right_aState) { 
        right_counter ++;
      } else {
        right_counter --;
@@ -79,11 +90,11 @@ void loop() {
  }
 
   void left_update() {
-    left_aState = digitalRead(left_enc_A); // Reads the "current" state of the A
+    left_aState = digitalRead(ENC_L1); // Reads the "current" state of the A
    // If the previous and the current state of the A are different, that means a Pulse has occured
    if (left_aState != left_aLastState){     
      // If the outputB state is different to the A state, that means the encoder is rotating clockwise
-     if (digitalRead(left_enc_B) != left_aState) { 
+     if (digitalRead(ENC_L2) != left_aState) { 
        left_counter ++;
      } else {
        left_counter --;
@@ -117,18 +128,18 @@ void callback(char* topic, byte* payload, unsigned int length) {
     //Serial.println(chars);
     if(!strcmp(chars, FWD)) {
       Serial.println("Forward");
-      digitalWrite(IN1, HIGH);
-      digitalWrite(IN2, LOW);
+      digitalWrite(motA1, HIGH);
+      digitalWrite(motA2, LOW);
     }
     else if(!strcmp(chars, BWD)) {
       Serial.println("Reverse");
-      digitalWrite(IN1, LOW);
-      digitalWrite(IN2, HIGH);
+      digitalWrite(motA1, LOW);
+      digitalWrite(motA2, HIGH);
     }
     else {
       Serial.println("Stopping");
-      digitalWrite(IN1, LOW);
-      digitalWrite(IN2, LOW);
+      digitalWrite(motA1, LOW);
+      digitalWrite(motA2, LOW);
     }
 }
 
