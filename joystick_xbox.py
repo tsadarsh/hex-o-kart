@@ -1,25 +1,27 @@
-import xbox
+import requirements.xbox as xbox
 from requirements.mqtt_client import Client
 import time
 
 joy = xbox.Joystick()         #Initialize joystick
 c = Client()
 c.connect()
-l = time.time()
+last_time = time.time()
+last_cmd = '00'
 
 def pub(command, override=False):
-    global l
-    if time.time() - l > 1 or override == True:
+    global last_time, last_cmd
+    if time.time() - last_time > 1 or override == True or command != last_cmd:
         print(f"Publishing {command}")
         c.publish(command)
-        l = time.time()
+        last_time = time.time()
+        last_cmd = command
 
 while not joy.Back():
     if joy.A():                   #Test state of the A button (1=pressed, 0=not pressed)
         pub('01')
-
     if joy.Y():
         pub('10')
+
 
 pub('00', override=True)
 
