@@ -1,3 +1,4 @@
+from math import ceil
 import requirements.xbox as xbox
 from requirements.mqtt_client import Client
 import time
@@ -6,7 +7,9 @@ joy = xbox.Joystick()         #Initialize joystick
 c = Client()
 c.connect()
 last_time = time.time()
-last_cmd = '00'
+last_left = 0
+last_right = 0
+mode = 1
 
 def pub(command, override=False):
     global last_time, last_cmd
@@ -17,13 +20,21 @@ def pub(command, override=False):
         last_cmd = command
 
 while not joy.Back():
-    if joy.A():                   #Test state of the A button (1=pressed, 0=not pressed)
-        pub('01')
-    if joy.Y():
-        pub('10')
+    if ceil(joy.rightTrigger()) != last_right:
+        cmd = ceil(joy.rightTrigger()) + mode
+        print("right: ", ceil(joy.rightTrigger() + mode))
+        last_right = ceil(joy.rightTrigger())
+        c.publish("/right_motor", cmd)
+
+    if ceil(joy.leftTrigger()) != last_left:
+        cmd = ceil(joy.leftTrigger()) + mode
+        print("left: ", ceil(joy.leftTrigger() + mode))
+        last_left = ceil(joy.leftTrigger())
+        c.publish("/left_motor", cmd)
 
 
-pub('00', override=True)
+c.publish("/right_motor", cmd)
+c.publish("/left_motor", cmd)
 
 # x_axis   = joy.leftX()        #X-axis of the left stick (values -1.0 to 1.0)
 # (x,y)    = joy.leftStick()    #Returns tuple containing left X and Y axes (values -1.0 to 1.0)
