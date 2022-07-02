@@ -12,7 +12,7 @@ c.connect()
 while gui.READY:
 	gui.event_loop(window)
 	message = gui.MESSAGE
-	c.publish(message)
+	c.publish("/swa/commmands", message)
 	c.subscribe(
 		[
 			"/swa/encoder/left",
