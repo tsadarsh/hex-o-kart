@@ -17,8 +17,11 @@
 
 const char* ssid = STASSID;
 char* password = STAPSK;
-const char *FWD = "10";
-const char *BWD = "01";
+const char *FWD = "2";
+const char *STP = "1"; 
+const char *BWD = "0";
+const char *LEF_MOT = "/left_motor";
+const char *RIG_MOT = "/right_motor";
 
 int right_counter = 0; 
 int right_aState;
@@ -92,13 +95,14 @@ void reconnect() {
   Serial.println("Connecting to MQTT Broker...");
   while (!mqttClient.connected()) {
       Serial.println("Reconnecting to MQTT Broker..");
-      String clientId = "ESP32Client-";
+      String clientId = "ESP8266Client-";
       clientId += String(random(0xffff), HEX);
       
       if (mqttClient.connect(clientId.c_str())) {
         Serial.println("Connected.");
         // subscribe to topic
-        mqttClient.subscribe("/swa/commands");
+        mqttClient.subscribe("/left_motor");
+        mqttClient.subscribe("/right_motor");
       }
       
   }
@@ -126,27 +130,38 @@ void callback(char* topic, byte* payload, unsigned int length) {
     char chars[length+1];
     memcpy(chars, payload, length);
     chars[length] = '\0';
-    //Serial.println(chars);
-    if(!strcmp(chars, FWD)) {
-      Serial.println("Forward");
-      digitalWrite(motA1, HIGH);
-      digitalWrite(motA2, LOW);
-      digitalWrite(motB1, HIGH);
-      digitalWrite(motB2, LOW);
+    Serial.println(topic);
+    
+    // Check command for LEFT motor
+    if(!strcmp(topic, LEF_MOT)) {
+      if(!strcmp(chars, FWD)) {
+        digitalWrite(motA1, HIGH);
+        digitalWrite(motA2, LOW);
+      }
+      else if(!strcmp(chars, BWD)) {
+        digitalWrite(motA1, LOW);
+        digitalWrite(motA2, HIGH);
+      }
+      else {
+        digitalWrite(motA1, LOW);
+        digitalWrite(motA2, LOW);
+      }
     }
-    else if(!strcmp(chars, BWD)) {
-      Serial.println("Reverse");
-      digitalWrite(motA1, LOW);
-      digitalWrite(motA2, HIGH);
-      digitalWrite(motB1, LOW);
-      digitalWrite(motB2, HIGH);
-    }
-    else {
-      Serial.println("Stopping");
-      digitalWrite(motA1, LOW);
-      digitalWrite(motA2, LOW);
-      digitalWrite(motB1, LOW);
-      digitalWrite(motB2, LOW);
+
+    // Check command received for RIGHT motor
+    else if(!strcmp(topic, RIG_MOT)) {
+      if(!strcmp(chars, FWD)) {
+        digitalWrite(motB1, HIGH);
+        digitalWrite(motB2, LOW);
+      }
+      else if(!strcmp(chars, BWD)) {
+        digitalWrite(motB1, LOW);
+        digitalWrite(motB2, HIGH);
+      }
+      else {
+        digitalWrite(motB1, LOW);
+        digitalWrite(motB2, LOW);
+      }
     }
 }
 
