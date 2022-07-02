@@ -28,8 +28,8 @@ class Client:
 	def loop_start(self):
 		self.client.loop_start()
 
-	def publish(self, message):
-		self.client.publish("/swa/commands", message)
+	def publish(self, topic, message):
+		self.client.publish(topic, message)
 		# Loop needed as per https://stackoverflow.com/a/47726934/12808184
 		self.client.loop(.1)
 
