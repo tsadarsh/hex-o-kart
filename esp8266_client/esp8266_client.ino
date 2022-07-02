@@ -1,17 +1,22 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#define motA1 9
-#define motA2 10
-#define motB1 13
-#define motB2 15
-#define ENC_R1 5
-#define ENC_R2 4
-#define ENC_L1 14
-#define ENC_L2 12
+#define motA1 15
+#define motA2 5
+#define motB1 4
+#define motB2 0
+#define ENC_R1 2
+#define ENC_R2 14
+#define ENC_L1 12
+#define ENC_L2 13
 
-char *SSID = "RUDRA_2.4G";
-char *PWD = "hackitifucan";
+#ifndef STASSID
+#define STASSID "RUDRA_2.4G"
+#define STAPSK  "hackitifucan"
+#endif
+
+const char* ssid = STASSID;
+char* password = STAPSK;
 const char *FWD = "10";
 const char *BWD = "01";
 
@@ -56,7 +61,7 @@ void pulldown_motor_pins() {
 
 void setup() {
   // Begin serial communication
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   // Connect to Wifi and start MQTT
   connectToWiFi();
@@ -101,9 +106,9 @@ void reconnect() {
 
 void connectToWiFi() {
   Serial.print("Connectiog to ");
- 
-  WiFi.begin(SSID, PWD);
-  Serial.println(SSID);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  Serial.println(ssid);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
@@ -151,7 +156,7 @@ void publish_left() {
   mqttClient.publish("/swa/encoder/left", left_e);
 }
 
- void right_update() {
+ICACHE_RAM_ATTR void right_update() {
     right_aState = digitalRead(ENC_R1); // Reads the "current" state of the A
    // If the previous and the current state of the A are different, that means a Pulse has occured
    if (right_aState != right_aLastState){     
@@ -166,7 +171,7 @@ void publish_left() {
    publish_right();
  }
 
-  void left_update() {
+ICACHE_RAM_ATTR void left_update() {
     left_aState = digitalRead(ENC_L1); // Reads the "current" state of the A
    // If the previous and the current state of the A are different, that means a Pulse has occured
    if (left_aState != left_aLastState){     
