@@ -1,12 +1,12 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#define motA1 15
-#define motA2 5
+#define motA1 2
+#define motA2 14
 #define motB1 4
 #define motB2 0
-#define ENC_R1 2
-#define ENC_R2 14
+#define ENC_R1 15
+#define ENC_R2 5
 #define ENC_L1 12
 #define ENC_L2 13
 
@@ -131,16 +131,22 @@ void callback(char* topic, byte* payload, unsigned int length) {
       Serial.println("Forward");
       digitalWrite(motA1, HIGH);
       digitalWrite(motA2, LOW);
+      digitalWrite(motB1, HIGH);
+      digitalWrite(motB2, LOW);
     }
     else if(!strcmp(chars, BWD)) {
       Serial.println("Reverse");
       digitalWrite(motA1, LOW);
       digitalWrite(motA2, HIGH);
+      digitalWrite(motB1, LOW);
+      digitalWrite(motB2, HIGH);
     }
     else {
       Serial.println("Stopping");
       digitalWrite(motA1, LOW);
       digitalWrite(motA2, LOW);
+      digitalWrite(motB1, LOW);
+      digitalWrite(motB2, LOW);
     }
 }
 
