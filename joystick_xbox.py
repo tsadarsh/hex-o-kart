@@ -7,8 +7,7 @@ joy = xbox.Joystick()         #Initialize joystick
 c = Client()
 c.connect()
 last_time = time.time()
-last_left = 0
-last_right = 0
+last_pos = (0, 0)
 mode = 1
 
 def pub(command, override=False):
@@ -20,22 +19,15 @@ def pub(command, override=False):
         last_cmd = command
 
 while not joy.Back():
-    if ceil(joy.rightTrigger()) != last_right:
-        cmd = ceil(joy.rightTrigger()) + mode
-        print("right: ", ceil(joy.rightTrigger() + mode))
-        last_right = ceil(joy.rightTrigger())
-        c.publish("/right_motor", cmd)
-
-    if ceil(joy.leftTrigger()) != last_left:
-        cmd = ceil(joy.leftTrigger()) + mode
-        print("left: ", ceil(joy.leftTrigger() + mode))
-        last_left = ceil(joy.leftTrigger())
-        c.publish("/left_motor", cmd)
+    if joy.rightStick() != last_pos:
+        right_joy = tuple(str(int(i)+1) for i in joy.rightStick())
+        cmd = ''.join(right_joy)
+        last_pos = joy.rightStick()
+        print("cmd: ", cmd)
+        c.publish("/motor", cmd)
 
 
-c.publish("/right_motor", cmd)
-c.publish("/left_motor", cmd)
-
+c.publish("/motor", "11")
 # x_axis   = joy.leftX()        #X-axis of the left stick (values -1.0 to 1.0)
 # (x,y)    = joy.leftStick()    #Returns tuple containing left X and Y axes (values -1.0 to 1.0)
 # trigger  = joy.rightTrigger() #Right trigger position (values 0 to 1.0)
