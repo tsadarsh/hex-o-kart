@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <ArduinoOTA.h>
 #define motA1 2   // left motor
 #define motA2 14  // left motor
 #define motB1 4   // right motor
@@ -65,15 +66,30 @@ void setup() {
   // Begin serial communication
   Serial.begin(115200);
 
-  // Connect to Wifi and start MQTT
-  connectToWiFi();
-  setupMQTT();
-
   // Configure pins and INPUT or OUTPUT
   setup_pinMode();
 
   // Do not power the motors at start
   pulldown_motor_pins();
+
+  // Connect to Wifi
+  connectToWiFi();
+
+  // Establish OTA
+  ArduinoOTA.onStart([]() {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH) {
+      type = "sketch";
+    } else { // U_FS
+      type = "filesystem";
+    }
+
+    // NOTE: if updating FS this would be the place to unmount FS using FS.end()
+    Serial.println("Start updating " + type);
+  });
+  ArduinoOTA.begin();
+  
+  setupMQTT();
 
   // Read encoder value at start
   right_aLastState = digitalRead(ENC_R1);
@@ -85,6 +101,8 @@ void setup() {
 }
 
 void loop() {
+  ArduinoOTA.handle();
+  
   if (!mqttClient.connected())
     reconnect();
   mqttClient.loop();
@@ -144,7 +162,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       digitalWrite(motA1, HIGH);
       digitalWrite(motA2, LOW);
       digitalWrite(motB1, LOW);
-      digitalWrite(motB2, LOW);  
+      digitalWrite(motB2, HIGH);  
     }
     else if(!strcmp(chars, "10")) {
       // move reverse
@@ -156,7 +174,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     else if(!strcmp(chars, "01")) {
       // move left
       digitalWrite(motA1, LOW);
-      digitalWrite(motA2, LOW);
+      digitalWrite(motA2, HIGH);
       digitalWrite(motB1, HIGH);
       digitalWrite(motB2, LOW);  
     }
