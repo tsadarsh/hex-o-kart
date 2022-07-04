@@ -1,10 +1,10 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#define motA1 2
-#define motA2 14
-#define motB1 4
-#define motB2 0
+#define motA1 2   // left motor
+#define motA2 14  // left motor
+#define motB1 4   // right motor
+#define motB2 0   // right motor
 #define ENC_R1 15
 #define ENC_R2 5
 #define ENC_L1 12
@@ -20,8 +20,7 @@ char* password = STAPSK;
 const char *FWD = "2";
 const char *STP = "1"; 
 const char *BWD = "0";
-const char *LEF_MOT = "/left_motor";
-const char *RIG_MOT = "/right_motor";
+const char *MOTOR = "/motor";
 
 int right_counter = 0; 
 int right_aState;
@@ -101,8 +100,9 @@ void reconnect() {
       if (mqttClient.connect(clientId.c_str())) {
         Serial.println("Connected.");
         // subscribe to topic
-        mqttClient.subscribe("/left_motor");
-        mqttClient.subscribe("/right_motor");
+//        mqttClient.subscribe("/left_motor");
+//        mqttClient.subscribe("/right_motor");
+          mqttClient.subscribe("/motor");
       }
       
   }
@@ -131,38 +131,72 @@ void callback(char* topic, byte* payload, unsigned int length) {
     memcpy(chars, payload, length);
     chars[length] = '\0';
     Serial.println(topic);
-    
-    // Check command for LEFT motor
-    if(!strcmp(topic, LEF_MOT)) {
-      if(!strcmp(chars, FWD)) {
-        digitalWrite(motA1, HIGH);
-        digitalWrite(motA2, LOW);
-      }
-      else if(!strcmp(chars, BWD)) {
-        digitalWrite(motA1, LOW);
-        digitalWrite(motA2, HIGH);
-      }
-      else {
-        digitalWrite(motA1, LOW);
-        digitalWrite(motA2, LOW);
-      }
-    }
 
-    // Check command received for RIGHT motor
-    else if(!strcmp(topic, RIG_MOT)) {
-      if(!strcmp(chars, FWD)) {
-        digitalWrite(motB1, HIGH);
-        digitalWrite(motB2, LOW);
-      }
-      else if(!strcmp(chars, BWD)) {
-        digitalWrite(motB1, LOW);
-        digitalWrite(motB2, HIGH);
-      }
-      else {
-        digitalWrite(motB1, LOW);
-        digitalWrite(motB2, LOW);
-      }
+    if(!strcmp(chars, "12")) {
+      // move forward
+      digitalWrite(motA1, HIGH);
+      digitalWrite(motA2, LOW);
+      digitalWrite(motB1, HIGH);
+      digitalWrite(motB2, LOW);
     }
+    else if(!strcmp(chars, "21")) {
+      // move right
+      digitalWrite(motA1, HIGH);
+      digitalWrite(motA2, LOW);
+      digitalWrite(motB1, LOW);
+      digitalWrite(motB2, LOW);  
+    }
+    else if(!strcmp(chars, "10")) {
+      // move reverse
+      digitalWrite(motA1, LOW);
+      digitalWrite(motA2, HIGH);
+      digitalWrite(motB1, LOW);
+      digitalWrite(motB2, HIGH);  
+    }
+    else if(!strcmp(chars, "01")) {
+      // move left
+      digitalWrite(motA1, LOW);
+      digitalWrite(motA2, LOW);
+      digitalWrite(motB1, HIGH);
+      digitalWrite(motB2, LOW);  
+    }
+    else {
+      digitalWrite(motA1, LOW);
+      digitalWrite(motA2, LOW);
+      digitalWrite(motB1, LOW);
+      digitalWrite(motB2, LOW);  
+    }
+//    // Check command for LEFT motor
+//    if(!strcmp(topic, LEF_MOT)) {
+//      if(!strcmp(chars, FWD)) {
+//        digitalWrite(motA1, HIGH);
+//        digitalWrite(motA2, LOW);
+//      }
+//      else if(!strcmp(chars, BWD)) {
+//        digitalWrite(motA1, LOW);
+//        digitalWrite(motA2, HIGH);
+//      }
+//      else {
+//        digitalWrite(motA1, LOW);
+//        digitalWrite(motA2, LOW);
+//      }
+//    }
+
+//    // Check command received for RIGHT motor
+//    else if(!strcmp(topic, RIG_MOT)) {
+//      if(!strcmp(chars, FWD)) {
+//        digitalWrite(motB1, HIGH);
+//        digitalWrite(motB2, LOW);
+//      }
+//      else if(!strcmp(chars, BWD)) {
+//        digitalWrite(motB1, LOW);
+//        digitalWrite(motB2, HIGH);
+//      }
+//      else {
+//        digitalWrite(motB1, LOW);
+//        digitalWrite(motB2, LOW);
+//      }
+//    }
 }
 
 void publish_right() {
