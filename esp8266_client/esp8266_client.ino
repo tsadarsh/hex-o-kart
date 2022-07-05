@@ -2,10 +2,6 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoOTA.h>
-//#define motA1 2   // left motor
-//#define motA2 14  // left motor
-//#define motB1 4   // right motor
-//#define motB2 0   // right motor
 #define mot1 4
 #define mot2 0
 #define motA_pwm 2
@@ -49,10 +45,6 @@ void setup_pinMode() {
   // Motors
   pinMode(mot1, OUTPUT);
   pinMode(mot2, OUTPUT);
-//  pinMode(motA1, OUTPUT);
-//  pinMode(motA2, OUTPUT);
-//  pinMode(motB1, OUTPUT);
-//  pinMode(motB2, OUTPUT);
 
   // Encoders
   pinMode (ENC_R1,INPUT);
@@ -68,10 +60,6 @@ void setup_pinMode() {
 void pulldown_motor_pins() {
   digitalWrite(mot1, LOW);
   digitalWrite(mot2, LOW);
-//  digitalWrite(motA1, LOW);
-//  digitalWrite(motA2, LOW);
-//  digitalWrite(motB1, LOW);
-//  digitalWrite(motB2, LOW);
 }
 
 void setup() {
@@ -133,8 +121,6 @@ void reconnect() {
       if (mqttClient.connect(clientId.c_str())) {
         Serial.println("Connected.");
         // subscribe to topic
-//        mqttClient.subscribe("/left_motor");
-//        mqttClient.subscribe("/right_motor");
           mqttClient.subscribe("/motor");
       }
       
@@ -188,33 +174,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
       Serial.println("FWD");
       digitalWrite(mot1, HIGH);
       digitalWrite(mot2, LOW);
-////      digitalWrite(motB1, HIGH);
-////      digitalWrite(motB2, LOW);
-//      analogWrite(motA_pwm, left_mot_pwm.toInt());
-//      analogWrite(motB_pwm, right_mot_pwm.toInt());
-////      mqttClient.publish("/dir", "FWD");
     }
     else if(dir == BWD) {
       // move reverse
       Serial.println("BWD");
       digitalWrite(mot1, LOW);
       digitalWrite(mot2, HIGH);
-////      digitalWrite(motB1, LOW);
-////      digitalWrite(motB2, HIGH);
-//      analogWrite(motA_pwm, left_mot_pwm.toInt());
-//      analogWrite(motB_pwm, right_mot_pwm.toInt());
-////      mqttClient.publish("/dir", "BWD");
     }
-//    else {
-//      Serial.println("STOP");
-////      digitalWrite(motA1, LOW);
-////      digitalWrite(motA2, LOW);
-////      digitalWrite(motB1, LOW);
-////      digitalWrite(motB2, LOW);
-//      analogWrite(motA_pwm, left_mot_pwm.toInt());
-//      analogWrite(motB_pwm, right_mot_pwm.toInt());
-//      mqttClient.publish("/dir", "STOP");
-//    }
 }
 
 void publish_right() {
