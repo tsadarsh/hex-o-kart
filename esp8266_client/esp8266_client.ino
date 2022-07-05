@@ -2,10 +2,14 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoOTA.h>
-#define motA1 2   // left motor
-#define motA2 14  // left motor
-#define motB1 4   // right motor
-#define motB2 0   // right motor
+//#define motA1 2   // left motor
+//#define motA2 14  // left motor
+//#define motB1 4   // right motor
+//#define motB2 0   // right motor
+#define mot1 4
+#define mot2 0
+#define motA_pwm 2
+#define motB_pwm 14
 #define ENC_R1 15
 #define ENC_R2 5
 #define ENC_L1 12
@@ -43,23 +47,31 @@ int mqttPort = 1883;
 
 void setup_pinMode() {
   // Motors
-  pinMode(motA1, OUTPUT);
-  pinMode(motA2, OUTPUT);
-  pinMode(motB1, OUTPUT);
-  pinMode(motB2, OUTPUT);
+  pinMode(mot1, OUTPUT);
+  pinMode(mot2, OUTPUT);
+//  pinMode(motA1, OUTPUT);
+//  pinMode(motA2, OUTPUT);
+//  pinMode(motB1, OUTPUT);
+//  pinMode(motB2, OUTPUT);
 
   // Encoders
   pinMode (ENC_R1,INPUT);
   pinMode (ENC_R2,INPUT);
   pinMode (ENC_L1,INPUT);
   pinMode (ENC_L2,INPUT);
+
+  // PWM
+  pinMode(motA_pwm, OUTPUT);
+  pinMode(motB_pwm, OUTPUT);
 }
 
 void pulldown_motor_pins() {
-  digitalWrite(motA1, LOW);
-  digitalWrite(motA2, LOW);
-  digitalWrite(motB1, LOW);
-  digitalWrite(motB2, LOW);
+  digitalWrite(mot1, LOW);
+  digitalWrite(mot2, LOW);
+//  digitalWrite(motA1, LOW);
+//  digitalWrite(motA2, LOW);
+//  digitalWrite(motB1, LOW);
+//  digitalWrite(motB2, LOW);
 }
 
 void setup() {
@@ -90,6 +102,9 @@ void setup() {
   ArduinoOTA.begin();
   
   setupMQTT();
+
+  // Analog write range
+//  analogWriteRange(100);
 
   // Read encoder value at start
   right_aLastState = digitalRead(ENC_R1);
@@ -148,72 +163,57 @@ void callback(char* topic, byte* payload, unsigned int length) {
     char chars[length+1];
     memcpy(chars, payload, length);
     chars[length] = '\0';
+    String chars_str = String(chars);
+    Serial.print("str: ");
+    Serial.println(chars_str);
+    Serial.print("Topic: ");
     Serial.println(topic);
+    Serial.print("Recv: ");
+    Serial.println(chars);
+    String dir = chars_str.substring(0, 1);
+    String left_mot_pwm = chars_str.substring(2, 6);
+    String right_mot_pwm = chars_str.substring(7, 11);
+    Serial.print("Dir: ");
+    Serial.println(dir);
+    Serial.print("L: ");
+    Serial.println(left_mot_pwm);
+    Serial.print("R: ");
+    Serial.println(right_mot_pwm);
 
-    if(!strcmp(chars, "12")) {
+    analogWrite(motA_pwm, left_mot_pwm.toInt());
+    analogWrite(motB_pwm, right_mot_pwm.toInt());
+
+    if(dir == FWD) {
       // move forward
-      digitalWrite(motA1, HIGH);
-      digitalWrite(motA2, LOW);
-      digitalWrite(motB1, HIGH);
-      digitalWrite(motB2, LOW);
+      Serial.println("FWD");
+      digitalWrite(mot1, HIGH);
+      digitalWrite(mot2, LOW);
+////      digitalWrite(motB1, HIGH);
+////      digitalWrite(motB2, LOW);
+//      analogWrite(motA_pwm, left_mot_pwm.toInt());
+//      analogWrite(motB_pwm, right_mot_pwm.toInt());
+////      mqttClient.publish("/dir", "FWD");
     }
-    else if(!strcmp(chars, "21")) {
-      // move right
-      digitalWrite(motA1, HIGH);
-      digitalWrite(motA2, LOW);
-      digitalWrite(motB1, LOW);
-      digitalWrite(motB2, HIGH);  
-    }
-    else if(!strcmp(chars, "10")) {
+    else if(dir == BWD) {
       // move reverse
-      digitalWrite(motA1, LOW);
-      digitalWrite(motA2, HIGH);
-      digitalWrite(motB1, LOW);
-      digitalWrite(motB2, HIGH);  
+      Serial.println("BWD");
+      digitalWrite(mot1, LOW);
+      digitalWrite(mot2, HIGH);
+////      digitalWrite(motB1, LOW);
+////      digitalWrite(motB2, HIGH);
+//      analogWrite(motA_pwm, left_mot_pwm.toInt());
+//      analogWrite(motB_pwm, right_mot_pwm.toInt());
+////      mqttClient.publish("/dir", "BWD");
     }
-    else if(!strcmp(chars, "01")) {
-      // move left
-      digitalWrite(motA1, LOW);
-      digitalWrite(motA2, HIGH);
-      digitalWrite(motB1, HIGH);
-      digitalWrite(motB2, LOW);  
-    }
-    else {
-      digitalWrite(motA1, LOW);
-      digitalWrite(motA2, LOW);
-      digitalWrite(motB1, LOW);
-      digitalWrite(motB2, LOW);  
-    }
-//    // Check command for LEFT motor
-//    if(!strcmp(topic, LEF_MOT)) {
-//      if(!strcmp(chars, FWD)) {
-//        digitalWrite(motA1, HIGH);
-//        digitalWrite(motA2, LOW);
-//      }
-//      else if(!strcmp(chars, BWD)) {
-//        digitalWrite(motA1, LOW);
-//        digitalWrite(motA2, HIGH);
-//      }
-//      else {
-//        digitalWrite(motA1, LOW);
-//        digitalWrite(motA2, LOW);
-//      }
-//    }
-
-//    // Check command received for RIGHT motor
-//    else if(!strcmp(topic, RIG_MOT)) {
-//      if(!strcmp(chars, FWD)) {
-//        digitalWrite(motB1, HIGH);
-//        digitalWrite(motB2, LOW);
-//      }
-//      else if(!strcmp(chars, BWD)) {
-//        digitalWrite(motB1, LOW);
-//        digitalWrite(motB2, HIGH);
-//      }
-//      else {
-//        digitalWrite(motB1, LOW);
-//        digitalWrite(motB2, LOW);
-//      }
+//    else {
+//      Serial.println("STOP");
+////      digitalWrite(motA1, LOW);
+////      digitalWrite(motA2, LOW);
+////      digitalWrite(motB1, LOW);
+////      digitalWrite(motB2, LOW);
+//      analogWrite(motA_pwm, left_mot_pwm.toInt());
+//      analogWrite(motB_pwm, right_mot_pwm.toInt());
+//      mqttClient.publish("/dir", "STOP");
 //    }
 }
 
