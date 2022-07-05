@@ -3,6 +3,12 @@ import requirements.xbox as xbox
 from requirements.mqtt_client import Client
 import time
 
+def map_range(x, in_min, in_max, out_min, out_max):
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+def normalise(x):
+    return format(int(abs(map_range(x, -2, 2, -1023, 1023))), '04d')
+
 joy = xbox.Joystick()         #Initialize joystick
 c = Client()
 c.connect()
@@ -20,14 +26,28 @@ def pub(command, override=False):
 
 while not joy.Back():
     if joy.rightStick() != last_pos:
-        right_joy = tuple(str(int(i)+1) for i in joy.rightStick())
-        cmd = ''.join(right_joy)
-        last_pos = joy.rightStick()
+        jR = joy.rightStick()
+        speed = jR[1]
+        offset = jR[0]
+        if speed > 0:
+            diR = 2
+            lM = normalise(speed + offset)
+            rM = normalise(speed - offset)
+        elif speed < 0:
+            diR = 0
+            lM = normalise(speed - offset)
+            rM = normalise(speed + offset)
+        else:
+            diR = 1
+            lM = format(0, '04d')
+            rM = format(0, '04d')
+        cmd = f'{diR},{lM},{rM}'
+        last_pos = jR
         print("cmd: ", cmd)
         c.publish("/motor", cmd)
 
 
-c.publish("/motor", "11")
+c.publish("/motor", "1,00,00")
 # x_axis   = joy.leftX()        #X-axis of the left stick (values -1.0 to 1.0)
 # (x,y)    = joy.leftStick()    #Returns tuple containing left X and Y axes (values -1.0 to 1.0)
 # trigger  = joy.rightTrigger() #Right trigger position (values 0 to 1.0)
